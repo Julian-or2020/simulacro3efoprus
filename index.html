@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tercer Simulacro - Pruebas Académicas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sessions-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .session {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e1e8ed;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .session:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .session-disabled:hover {
+            transform: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .session-disabled::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            pointer-events: none;
+        }
+
+        .session-status {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #ffa726, #ff9800);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        .status-badge.active {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .test-card.disabled {
+            background: #f5f5f5;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .test-card.disabled:hover {
+            background: #f5f5f5;
+            transform: none;
+        }
+
+        .disabled-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #bdbdbd, #9e9e9e);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: not-allowed;
+            box-shadow: 0 4px 15px rgba(189, 189, 189, 0.3);
+        }
+
+        .disabled-link:hover {
+            background: linear-gradient(45deg, #bdbdbd, #9e9e9e);
+            transform: none;
+        }
+
+        .session-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .test-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .test-card:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+        }
+
+        .test-card:nth-child(even) {
+            border-left-color: #e74c3c;
+        }
+
+        .test-card:nth-child(odd) {
+            border-left-color: #2ecc71;
+        }
+
+        .test-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .test-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-count {
+            background: #3498db;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .test-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .test-link:hover {
+            background: linear-gradient(45deg, #2980b9, #1abc9c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .summary {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            margin: 20px 40px;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #e74c3c;
+            display: block;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .recommendations {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            margin: 20px 40px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .recommendations h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .recommendation {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .recommendation:hover {
+            transform: translateY(-5px);
+        }
+
+        .recommendation-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .recommendation h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .recommendation p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .sessions-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .summary, .recommendations {
+                margin: 20px;
+            }
+            
+            .summary-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .recommendations-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 TERCER SIMULACRO</h1>
+            <p>Preicfes EFOPRUS</p>
+        </div>
+
+        <div class="sessions-container">
+            <div class="session">
+                <h2 class="session-title">📚 PRIMERA SESIÓN</h2>
+                <div class="session-status">
+                    <div class="status-badge active">🕐 8:30 a.m. - 12:30 p.m.</div>
+                </div>
+                
+                <div class="test-card">
+                    <h3>🧪 Ciencias Naturales</h3>
+                    <div class="test-info">
+                        <span class="question-count">29 Preguntas</span>
+                    </div>
+                    <a href="https://forms.gle/9jGmHC9sHBvUr7ep9" class="test-link" target="_blank">
+                        Iniciar Prueba
+                    </a>
+                </div>
+
+                <div class="test-card">
+                    <h3>🔢 Matemáticas</h3>
+                    <div class="test-info">
+                        <span class="question-count">25 Preguntas</span>
+                    </div>
+                    <a href="https://forms.gle/AWc5KeMghbYaiy9u9" class="test-link" target="_blank">
+                        Iniciar Prueba
+                    </a>
+                </div>
+
+                <div class="test-card">
+                    <h3>📖 Lectura Crítica</h3>
+                    <div class="test-info">
+                        <span class="question-count">41 Preguntas</span>
+                    </div>
+                    <a href="https://forms.gle/LZhv184P2BwEnLrs5" class="test-link" target="_blank">
+                        Iniciar Prueba
+                    </a>
+                </div>
+
+                <div class="test-card">
+                    <h3>🏛️ Competencias Ciudadanas</h3>
+                    <div class="test-info">
+                        <span class="question-count">25 Preguntas</span>
+                    </div>
+                    <a href="https://forms.gle/nc7ZjH3JTtRg6GPu9" class="test-link" target="_blank">
+                        Iniciar Prueba
+                    </a>
+                </div>
+            </div>
+
+            <div class="session session-disabled">
+                <h2 class="session-title">📝 SEGUNDA SESIÓN</h2>
+                <div class="session-status">
+                    <div class="status-badge">⏰ 1:30 p.m. - 4:30 p.m.</div>
+                </div>
+                
+                <div class="test-card disabled">
+                    <h3>🧪 Ciencias Naturales</h3>
+                    <div class="test-info">
+                        <span class="question-count">29 Preguntas</span>
+                    </div>
+                    <div class="test-link disabled-link">
+                        Próximamente
+                    </div>
+                </div>
+
+                <div class="test-card disabled">
+                    <h3>🔢 Matemáticas</h3>
+                    <div class="test-info">
+                        <span class="question-count">25 Preguntas</span>
+                    </div>
+                    <div class="test-link disabled-link">
+                        Próximamente
+                    </div>
+                </div>
+
+                <div class="test-card disabled">
+                    <h3>🌍 Inglés</h3>
+                    <div class="test-info">
+                        <span class="question-count">55 Preguntas</span>
+                    </div>
+                    <div class="test-link disabled-link">
+                        Próximamente
+                    </div>
+                </div>
+
+                <div class="test-card disabled">
+                    <h3>🏛️ Competencias Ciudadanas</h3>
+                    <div class="test-info">
+                        <span class="question-count">25 Preguntas</span>
+                    </div>
+                    <div class="test-link disabled-link">
+                        Próximamente
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary">
+            <h2>📊 Resumen del Simulacro</h2>
+            <div class="summary-stats">
+                <div class="stat">
+                    <span class="stat-number">120</span>
+                    <span class="stat-label">Preguntas Primera Sesión</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">134</span>
+                    <span class="stat-label">Preguntas Segunda Sesión</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">254</span>
+                    <span class="stat-label">Total de Preguntas</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="recommendations">
+            <h2>💡 Recomendaciones para el Simulacro</h2>
+            <div class="recommendations-grid">
+                <div class="recommendation">
+                    <div class="recommendation-icon">🙏</div>
+                    <h3>No olvides orar</h3>
+                    <p>Comienza con fe y confianza</p>
+                </div>
+                <div class="recommendation">
+                    <div class="recommendation-icon">📝</div>
+                    <h3>Ten todo listo antes de comenzar</h3>
+                    <p>Prepara tu espacio y materiales</p>
+                </div>
+                <div class="recommendation">
+                    <div class="recommendation-icon">👁️</div>
+                    <h3>Lee con atención cada instrucción</h3>
+                    <p>La comprensión es clave para el éxito</p>
+                </div>
+                <div class="recommendation">
+                    <div class="recommendation-icon">⏰</div>
+                    <h3>Maneja bien tu tiempo</h3>
+                    <p>Distribuye eficientemente cada minuto</p>
+                </div>
+                <div class="recommendation">
+                    <div class="recommendation-icon">⭐</div>
+                    <h3>Da lo mejor de ti</h3>
+                    <p>Esfuerzo y dedicación son fundamentales</p>
+                </div>
+                <div class="recommendation">
+                    <div class="recommendation-icon">📚</div>
+                    <h3>Aprende del proceso</h3>
+                    <p>Cada experiencia te hace crecer</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Preicfes EFOPRUS - Tercer Simulacro | ¡Éxito en tus pruebas! 🌟</p>
+        </div>
+    </div>
+
+    <script>
+        // Animación de entrada para las tarjetas
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.test-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+
+        // Efecto de click en los enlaces
+        document.querySelectorAll('.test-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+    </script>
+</body>
+</html>
